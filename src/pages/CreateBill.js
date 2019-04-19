@@ -95,18 +95,16 @@ class CreateBill extends React.Component {
   };
   handleDelete = async index => {
     const data = this.state.data;
-    this.state.data.products.splice(index, 1);
+    const rm = this.state.data.products.splice(index, 1);
+    var total = data.total - rm[0].product.amount;
 
-    console.log(this.state.data.products);
     await this.setState({
       data: {
         ...data,
-        products: this.state.data.products
+        products: this.state.data.products,
+        total: total
       }
     });
-    // console.log("new", this.state.data.products.splice(index, 2));
-    console.log(this.state.data.products);
-    // console.log("splice" + newproducts.splice(index, 1));
   };
   handleNext = async () => {
     const cookie = new Cookies();
