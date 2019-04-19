@@ -12,10 +12,14 @@ const BoxBill = styled.div`
   background-color: black;
   color: white;
 `;
+const BoxResult = styled.td`
+  background-color: black;
+  color: white;
+`;
 
 function CC(name) {
   const text = document.getElementById("bill");
-  console.log(text);
+
   html2canvas(text, { dpi: 144 }).then(canvas => {
     const imgData = canvas.toDataURL("image/png", 1.0);
     const pdf = new jsPDF("p", "mm", "a4");
@@ -24,7 +28,7 @@ function CC(name) {
       (width * document.getElementById("bill").offsetHeight) /
       document.getElementById("bill").offsetWidth;
     pdf.addImage(imgData, "JPEG", 0, 0, width, height);
-    pdf.save(`${name}.pdf`);
+    pdf.save(`${name}.pdf`).then((window.location.href = "/"));
   });
 }
 
@@ -34,10 +38,17 @@ class Bill extends React.Component {
   };
   render() {
     const data = cookie.get("bill");
-    console.log(data);
     return (
       <div>
-        <Paper id="bill" className="col-12 mx-auto p-3">
+        <div className="col-12 col-sm-10 mx-auto p-0 text-right">
+          <button
+            onClick={() => CC(`${data.store}(${data.date})`)}
+            className="btn btn-success mt-3"
+          >
+            Save for Print
+          </button>
+        </div>
+        <Paper id="bill" className="col-12 col-sm-10 mx-auto p-3 mt-3 mb-5">
           <div className="text-center mt-5">
             <h3>ผลไม้แช่อิ่มภัทรพล</h3>
             <div className="col-6 mx-auto">
@@ -70,18 +81,18 @@ class Bill extends React.Component {
             {data.products.map((prod, i) => {
               return (
                 <tr>
-                  <td className="p-2">{prod.product.quanlity}</td>
+                  <td className="p-2 text-right">{prod.product.quanlity}</td>
                   <td className="p-2">{prod.product.description}</td>
-                  <td className="p-2">{prod.product.unitprice}</td>
-                  <td className="p-2">{prod.product.amount}</td>
+                  <td className="p-2 text-right">{prod.product.unitprice}</td>
+                  <td className="p-2 text-right">{prod.product.amount}</td>
                 </tr>
               );
             })}
             <tr>
-              <td className="p-2">บาท</td>
+              <BoxResult className="p-2">บาท</BoxResult>
               <td className="p-2" />
-              <td className="p-2">รวมเงิน</td>
-              <td className="p-2">{data.total}</td>
+              <BoxResult className="p-2">รวมเงิน</BoxResult>
+              <td className="p-2 text-right">{data.total}</td>
             </tr>
           </table>
           <div className="text-left mt-5 mb-5">
@@ -91,7 +102,6 @@ class Bill extends React.Component {
             </div>
           </div>
         </Paper>
-        <button onClick={() => CC(`${data.store}(${data.date})`)}>Save</button>
       </div>
     );
   }

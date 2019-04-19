@@ -18,9 +18,9 @@ class CreateBill extends React.Component {
     data: {
       store: "Choose...",
       date:
-        new Date().getDay() +
+        new Date().getDate() +
         "/ " +
-        new Date().getMonth() +
+        (new Date().getMonth() + 1) +
         "/ " +
         new Date().getFullYear(),
       products: [],
@@ -41,7 +41,6 @@ class CreateBill extends React.Component {
         store: value
       }
     });
-    console.log(this.state.data);
   };
   handleProduct = async (param, value) => {
     const product = this.state.product;
@@ -58,7 +57,6 @@ class CreateBill extends React.Component {
         amount: this.state.product.quanlity * this.state.product.unitprice
       }
     });
-    console.log(this.state.product);
   };
   handleAdd = async () => {
     const data = this.state.data;
@@ -71,8 +69,6 @@ class CreateBill extends React.Component {
         product.unitprice === 0
       )
     ) {
-      console.log(this.state.total);
-      console.log("asdasdasdasd" + product.amount);
       await this.setState({
         data: {
           ...data,
@@ -96,14 +92,27 @@ class CreateBill extends React.Component {
     } else {
       window.alert("กรอกให้ครบ");
     }
+  };
+  handleDelete = async index => {
+    const data = this.state.data;
+    this.state.data.products.splice(index, 1);
+
     console.log(this.state.data.products);
+    await this.setState({
+      data: {
+        ...data,
+        products: this.state.data.products
+      }
+    });
+    // console.log("new", this.state.data.products.splice(index, 2));
+    console.log(this.state.data.products);
+    // console.log("splice" + newproducts.splice(index, 1));
   };
   handleNext = async () => {
     const cookie = new Cookies();
     const data = this.state.data;
     if (!(data.store === "Choose..." || data.products.length === 0)) {
       await cookie.set("bill", this.state.data);
-      console.log(cookie.get("bill"));
       window.location.href = "/bill";
     } else {
       window.alert("กรอกข้อมูลให้ครบ");
@@ -126,10 +135,9 @@ class CreateBill extends React.Component {
         })}
       </select>
     );
-    console.log(this.state.data.products);
     return (
       <div>
-        <Paper id="bill" className="col-12 col-sm-10 mx-auto p-3">
+        <Paper id="bill" className="col-12 col-sm-10 mx-auto p-3 mt-5 mb-5">
           <div className="text-center mt-5">
             <h3>ผลไม้แช่อิ่มภัทรพล</h3>
             <div className="col-6 mx-auto">
@@ -144,6 +152,11 @@ class CreateBill extends React.Component {
             <div className="col">
               ร้าน :
               <SelectorStore store={Data.store} param="store" />
+              <input
+                type="text"
+                onChange={e => this.handleStore(e.target.value)}
+                value={this.state.data.store}
+              />
             </div>
             <div className="col">วันที่ : {this.state.data.date}</div>
           </div>
@@ -161,14 +174,26 @@ class CreateBill extends React.Component {
               <th scope="col" className="p-3">
                 จำนวนเงิน (Amount)
               </th>
+              <th scope="col" className="p-3">
+                Delete
+              </th>
             </tr>
             {this.state.data.products.map((item, i) => {
               return (
                 <tr>
-                  <td className="p-2">{item.product.quanlity}</td>
+                  <td className="p-2 text-right">{item.product.quanlity}</td>
                   <td className="p-2">{item.product.description}</td>
-                  <td className="p-2">{item.product.unitprice}</td>
-                  <td className="p-2">{item.product.amount}</td>
+                  <td className="p-2 text-right">{item.product.unitprice}</td>
+                  <td className="p-2 text-right">{item.product.amount}</td>
+                  <td className="p-2">
+                    <button
+                      onClick={() => this.handleDelete(i)}
+                      type="button"
+                      className="btn btn-danger"
+                    >
+                      -
+                    </button>
+                  </td>
                 </tr>
               );
             })}
@@ -177,6 +202,7 @@ class CreateBill extends React.Component {
                 <input
                   type="number"
                   onChange={e => this.handleProduct("quanlity", e.target.value)}
+                  value={this.state.product.quanlity}
                 />
               </td>
               <td className="p-2">
@@ -188,23 +214,36 @@ class CreateBill extends React.Component {
                   onChange={e =>
                     this.handleProduct("unitprice", e.target.value)
                   }
+                  value={this.state.product.unitprice}
                 />
               </td>
-              <td className="p-2">{this.state.product.amount}</td>
+              <td className="p-2 text-right">{this.state.product.amount}</td>
             </tr>
             <tr>
-              <td colSpan="4">
-                <button onClick={this.handleAdd}>+</button>
+              <td colSpan="4" class="text-center p-2">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  onClick={this.handleAdd}
+                >
+                  + เพิ่มรายการ
+                </button>
               </td>
             </tr>
             <tr>
               <td className="p-2">บาท</td>
               <td className="p-2" />
               <td className="p-2">รวมเงิน</td>
-              <td className="p-2">{this.state.data.total}</td>
+              <td className="p-2 text-right">{this.state.data.total}</td>
             </tr>
           </table>
-          <button onClick={this.handleNext}>Next</button>
+          <button
+            type="button"
+            className="btn btn-warning col-12 mt-5"
+            onClick={this.handleNext}
+          >
+            Next
+          </button>
         </Paper>
       </div>
     );
